@@ -1,0 +1,44 @@
+name: Bug report
+description: Something isn't working
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug. Please fill in the details below.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: Steps to reproduce, expected vs. actual behaviour.
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 23H2
+    validations:
+      required: true
+  - type: input
+    id: bridge
+    attributes:
+      label: Hue bridge model
+      placeholder: e.g. Bridge Pro (BSB003) / older round bridge (BSB002)
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: HueControl version
+      placeholder: e.g. 1.0.0
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or error text
+      description: Paste any error message or attach a screenshot.
+    validations:
+      required: false

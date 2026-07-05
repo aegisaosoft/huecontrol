@@ -1,0 +1,97 @@
+<Window x:Class="HueControl.AddBridgeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        mc:Ignorable="d"
+        Title="Add bridge" Height="548" Width="480"
+        Icon="Assets/app.ico"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BgBrush}"
+        FontFamily="Segoe UI">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="0"
+                            CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Border BorderBrush="{DynamicResource WindowBorderBrush}" BorderThickness="1">
+    <DockPanel LastChildFill="True">
+        <!-- Custom title bar -->
+        <Grid DockPanel.Dock="Top" Height="40" Background="{DynamicResource TitleBarBrush}">
+            <TextBlock Text="Add bridge" VerticalAlignment="Center" Margin="16,0,0,0"
+                       Foreground="{DynamicResource OnAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
+            <Button Style="{StaticResource CloseCaptionButton}" HorizontalAlignment="Right"
+                    Click="OnCancel" ToolTip="Close">
+                <Path Data="M0,0 L11,11 M11,0 L0,11"
+                      Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.3"/>
+            </Button>
+        </Grid>
+
+        <Grid Margin="24,18,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="Add a Hue bridge" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="Discover bridges on your network, or type the IP directly."
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                           Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Button Grid.Row="1" Content="Discover on network" Style="{StaticResource FlatButton}"
+                    HorizontalAlignment="Left" Margin="0,18,0,0"
+                    Command="{Binding DiscoverCommand}"/>
+
+            <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,14,0,0" Padding="6">
+                <ListBox ItemsSource="{Binding DiscoveredBridges}" SelectedItem="{Binding SelectedBridge}"
+                         Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="6">
+                                <TextBlock Text="{Binding IpAddress}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Id}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <StackPanel Grid.Row="3" Margin="0,14,0,0">
+                <TextBlock Text="Bridge IP address" Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontSize="12" Margin="0,0,0,6"/>
+                <TextBox Text="{Binding ManualIp, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="Home (pick or type a new one)" Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontSize="12" Margin="0,10,0,6"/>
+                <ComboBox IsEditable="True" Height="34" VerticalContentAlignment="Center"
+                          ItemsSource="{Binding HomeNames}"
+                          Text="{Binding HomeName, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+
+            <TextBlock Grid.Row="4" Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource AccentHoverBrush}" FontSize="12" Margin="0,16,0,0"/>
+
+            <Grid Grid.Row="5" Margin="0,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="Cancel" Style="{StaticResource FlatButton}"
+                        Click="OnCancel"/>
+                <Button Grid.Column="2" Content="Pair (press link button)" Style="{StaticResource AccentButton}"
+                        Command="{Binding PairCommand}"/>
+            </Grid>
+        </Grid>
+    </DockPanel>
+    </Border>
+</Window>

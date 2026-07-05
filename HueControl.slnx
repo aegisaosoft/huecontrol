@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HueControl.Tests/HueControl.Tests.csproj" />
+  <Project Path="HueControl/HueControl.csproj" />
+</Solution>
