@@ -45,7 +45,7 @@ public sealed class GroupViewModel : ObservableObject
     public ICommand TurnOnCommand { get; }
     public ICommand TurnOffCommand { get; }
 
-    public string Subtitle => $"{RoomClass} · {LightCount} lights";
+    public string Subtitle => $"{RoomClass} · {Loc.T("NLights_Fmt", LightCount)}";
 
     public bool AnyOn
     {

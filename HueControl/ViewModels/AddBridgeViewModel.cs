@@ -16,7 +16,7 @@ public sealed class AddBridgeViewModel : ObservableObject
     private DiscoveredBridge? _selectedBridge;
     private string _manualIp = string.Empty;
     private string _homeName;
-    private string _statusMessage = "Discover bridges, or type an IP address, then press Pair.";
+    private string _statusMessage = Loc.T("Status_DiscoverHint");
     private bool _isBusy;
 
     public AddBridgeViewModel()
@@ -86,7 +86,7 @@ public sealed class AddBridgeViewModel : ObservableObject
     private async Task DiscoverAsync()
     {
         IsBusy = true;
-        StatusMessage = "Searching the network for bridges…";
+        StatusMessage = Loc.T("Status_Searching");
         try
         {
             DiscoveredBridges.Clear();
@@ -95,8 +95,8 @@ public sealed class AddBridgeViewModel : ObservableObject
                 DiscoveredBridges.Add(bridge);
 
             StatusMessage = DiscoveredBridges.Count > 0
-                ? $"Found {DiscoveredBridges.Count} bridge(s). Select one or enter an IP, then Pair."
-                : "No bridges found automatically. Enter the bridge IP manually.";
+                ? Loc.T("Status_FoundBridges_Fmt", DiscoveredBridges.Count)
+                : Loc.T("Status_NoneFound");
         }
         finally
         {
@@ -109,12 +109,12 @@ public sealed class AddBridgeViewModel : ObservableObject
         string ip = ManualIp.Trim();
         if (string.IsNullOrWhiteSpace(ip))
         {
-            StatusMessage = "Enter a bridge IP address first.";
+            StatusMessage = Loc.T("Status_EnterIpFirst");
             return;
         }
 
         IsBusy = true;
-        StatusMessage = $"Pairing with {ip} — press the link button on the bridge now…";
+        StatusMessage = Loc.T("Status_Pairing_Fmt", ip);
         try
         {
             string key = await HueApiClient.PairAsync(ip);
@@ -129,16 +129,16 @@ public sealed class AddBridgeViewModel : ObservableObject
                 AppKey = key,
             };
 
-            StatusMessage = $"Paired with {name}.";
+            StatusMessage = Loc.T("Status_Paired_Fmt", name);
             PairingSucceeded?.Invoke(this, EventArgs.Empty);
         }
         catch (LinkButtonNotPressedException)
         {
-            StatusMessage = "Link button not detected. Press it on the bridge, then click Pair again.";
+            StatusMessage = Loc.T("Status_LinkNotDetected");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Pairing failed: {ex.Message}";
+            StatusMessage = Loc.T("Status_PairingFailed_Fmt", ex.Message);
         }
         finally
         {

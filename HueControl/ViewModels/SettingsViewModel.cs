@@ -26,6 +26,9 @@ public sealed class SettingsViewModel : ObservableObject
 
     public string BridgeName { get; }
 
+    /// <summary>Localized window header, e.g. "Settings — Hue Bridge Pro".</summary>
+    public string Header => Loc.T("Settings_Header", BridgeName);
+
     public ObservableCollection<object> Sections { get; }
 
     public object SelectedSection

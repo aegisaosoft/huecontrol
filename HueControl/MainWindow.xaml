@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:HueControl.ViewModels"
         xmlns:conv="clr-namespace:HueControl.Converters"
+        xmlns:loc="clr-namespace:HueControl.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="HueControl" Height="740" Width="1140"
@@ -78,7 +79,7 @@
                                FontSize="11" Margin="0,6,0,0"/>
                     <Slider Minimum="0" Maximum="100" Margin="0,14,0,0"
                             Value="{Binding Brightness, Mode=TwoWay}"/>
-                    <Button Content="Choose colour" Style="{StaticResource FlatButton}"
+                    <Button Content="{loc:Tr ChooseColour}" Style="{StaticResource FlatButton}"
                             Margin="0,14,0,0" HorizontalAlignment="Stretch"
                             Command="{Binding PickColorCommand}"
                             Visibility="{Binding SupportsColor, Converter={StaticResource BoolToVis}}"/>
@@ -151,7 +152,7 @@
                     </StackPanel>
                     <Button Content="&#x2715;" Style="{StaticResource LinkButton}" FontSize="12"
                             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0"
-                            ToolTip="Delete scene"
+                            ToolTip="{loc:Tr DeleteScene}"
                             Command="{Binding DataContext.DeleteSceneCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                             CommandParameter="{Binding}"/>
                 </Grid>
@@ -164,7 +165,7 @@
         <!-- ============ Custom title bar ============ -->
         <Grid DockPanel.Dock="Top" Height="40" Background="{DynamicResource TitleBarBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button Style="{StaticResource CaptionButton}" Click="OnToggleMenu" ToolTip="Bridges menu">
+                <Button Style="{StaticResource CaptionButton}" Click="OnToggleMenu" ToolTip="{loc:Tr Tip_BridgesMenu}">
                     <StackPanel>
                         <Rectangle Width="16" Height="1.6" Fill="{DynamicResource OnAccentBrush}"/>
                         <Rectangle Width="16" Height="1.6" Fill="{DynamicResource OnAccentBrush}" Margin="0,4,0,0"/>
@@ -175,8 +176,18 @@
                            Foreground="{DynamicResource OnAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Language (globe) -->
+                <Button x:Name="LanguageButton" Style="{StaticResource CaptionButton}"
+                        Click="OnOpenLanguageMenu" ToolTip="{loc:Tr Tip_Language}">
+                    <Viewbox Width="16" Height="16">
+                        <Canvas Width="24" Height="24">
+                            <Path Fill="{DynamicResource OnAccentBrush}"
+                                  Data="M12 2a10 10 0 100 20 10 10 0 000-20zm6.93 6h-2.95a15.7 15.7 0 00-1.38-3.56A8.03 8.03 0 0118.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14a7.96 7.96 0 010-4h3.38a16.6 16.6 0 000 4H4.26zm.81 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 015.07 16zm2.95-8H5.07a7.99 7.99 0 014.71-3.56A15.7 15.7 0 008.02 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82A13.7 13.7 0 0112 19.96zM14.34 14H9.66a14.8 14.8 0 010-4h4.68a14.8 14.8 0 010 4zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14a16.6 16.6 0 000-4h3.38a7.96 7.96 0 010 4h-3.38z"/>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
                 <!-- Settings (gear) -->
-                <Button Style="{StaticResource CaptionButton}" Click="OnOpenSettings" ToolTip="Settings">
+                <Button Style="{StaticResource CaptionButton}" Click="OnOpenSettings" ToolTip="{loc:Tr Tip_Settings}">
                     <Viewbox Width="17" Height="17">
                         <Canvas Width="24" Height="24">
                             <Path Fill="{DynamicResource OnAccentBrush}"
@@ -185,7 +196,7 @@
                     </Viewbox>
                 </Button>
                 <!-- Theme toggle: a white crescent on the accent bar -->
-                <Button Style="{StaticResource CaptionButton}" Click="OnToggleTheme" ToolTip="Light / dark theme">
+                <Button Style="{StaticResource CaptionButton}" Click="OnToggleTheme" ToolTip="{loc:Tr Tip_Theme}">
                     <Grid Width="15" Height="15">
                         <Ellipse Fill="{DynamicResource OnAccentBrush}"/>
                         <Ellipse Fill="{DynamicResource TitleBarBrush}" Width="12" Height="12"
@@ -193,11 +204,11 @@
                     </Grid>
                 </Button>
                 <!-- Minimize: a horizontal line -->
-                <Button Style="{StaticResource CaptionButton}" Click="OnMinimize" ToolTip="Minimize">
+                <Button Style="{StaticResource CaptionButton}" Click="OnMinimize" ToolTip="{loc:Tr Tip_Minimize}">
                     <Rectangle Width="12" Height="1.4" Fill="{DynamicResource OnAccentBrush}"/>
                 </Button>
                 <!-- Maximize / restore: single square, or offset double square when maximized -->
-                <Button Style="{StaticResource CaptionButton}" Click="OnMaximizeRestore" ToolTip="Maximize">
+                <Button Style="{StaticResource CaptionButton}" Click="OnMaximizeRestore" ToolTip="{loc:Tr Tip_Maximize}">
                     <Grid Width="14" Height="14">
                         <Rectangle x:Name="MaxIcon" Width="11" Height="11"
                                    Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.3"
@@ -212,7 +223,7 @@
                     </Grid>
                 </Button>
                 <!-- Close: an X -->
-                <Button Style="{StaticResource CloseCaptionButton}" Click="OnClose" ToolTip="Close">
+                <Button Style="{StaticResource CloseCaptionButton}" Click="OnClose" ToolTip="{loc:Tr Close}">
                     <Path Data="M0,0 L11,11 M11,0 L0,11"
                           Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.3"/>
                 </Button>
@@ -236,18 +247,18 @@
             <DockPanel Margin="18">
                 <StackPanel DockPanel.Dock="Top">
                     <TextBlock Text="HueControl" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Philips Hue manager" Foreground="{DynamicResource TextSecondaryBrush}"
+                    <TextBlock Text="{loc:Tr App_Subtitle}" Foreground="{DynamicResource TextSecondaryBrush}"
                                FontSize="12" Margin="0,2,0,0"/>
-                    <TextBlock Text="HOMES" Foreground="{DynamicResource TextSecondaryBrush}"
+                    <TextBlock Text="{loc:Tr Homes}" Foreground="{DynamicResource TextSecondaryBrush}"
                                FontSize="11" FontWeight="SemiBold" Margin="0,24,0,8"/>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Bottom">
-                    <Button Content="+ Add home" Style="{StaticResource FlatButton}"
+                    <Button Content="{loc:Tr AddHome}" Style="{StaticResource FlatButton}"
                             Margin="0,8,0,0" Command="{Binding AddHomeCommand}"/>
-                    <Button Content="+ Add bridge" Style="{StaticResource AccentButton}"
+                    <Button Content="{loc:Tr AddBridgeBtn}" Style="{StaticResource AccentButton}"
                             Margin="0,8,0,0" Command="{Binding AddBridgeCommand}"/>
-                    <Button Content="Remove selected" Style="{StaticResource FlatButton}"
+                    <Button Content="{loc:Tr RemoveSelected}" Style="{StaticResource FlatButton}"
                             Margin="0,8,0,0" Command="{Binding RemoveBridgeCommand}"/>
                     <Separator Margin="0,16" Background="{DynamicResource BorderBrush}"/>
                     <Grid>
@@ -256,12 +267,12 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="All on" Style="{StaticResource FlatButton}"
+                        <Button Grid.Column="0" Content="{loc:Tr AllOn}" Style="{StaticResource FlatButton}"
                                 Command="{Binding AllOnCommand}"/>
-                        <Button Grid.Column="2" Content="All off" Style="{StaticResource FlatButton}"
+                        <Button Grid.Column="2" Content="{loc:Tr AllOff}" Style="{StaticResource FlatButton}"
                                 Command="{Binding AllOffCommand}"/>
                     </Grid>
-                    <Button Content="Refresh" Style="{StaticResource FlatButton}"
+                    <Button Content="{loc:Tr Refresh}" Style="{StaticResource FlatButton}"
                             Margin="0,8,0,0" Command="{Binding RefreshCommand}"/>
                 </StackPanel>
 
@@ -275,9 +286,9 @@
                                         <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextSecondaryBrush}"
                                                    FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Rename" Style="{StaticResource LinkButton}"
+                                            <Button Content="{loc:Tr Rename}" Style="{StaticResource LinkButton}"
                                                     Command="{Binding RenameCommand}"/>
-                                            <Button Content="Delete" Style="{StaticResource LinkButton}"
+                                            <Button Content="{loc:Tr Delete}" Style="{StaticResource LinkButton}"
                                                     Command="{Binding DeleteCommand}" Margin="6,0,0,0"/>
                                         </StackPanel>
                                     </Grid>
@@ -326,7 +337,7 @@
                 <Grid>
                     <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="Loading…" Foreground="{DynamicResource AccentBrush}"
+                    <TextBlock Text="{loc:Tr Loading}" Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Right" FontWeight="SemiBold"
                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
                 </Grid>
@@ -334,7 +345,7 @@
 
             <TabControl Background="Transparent" BorderThickness="0" Padding="0,12,0,0">
                 <!-- Rooms (default): room selector on top, selected room's lights below -->
-                <TabItem Header="Rooms">
+                <TabItem Header="{loc:Tr Tab_Rooms}">
                     <DockPanel>
                         <!-- Room selector -->
                         <ListBox DockPanel.Dock="Top"
@@ -371,10 +382,10 @@
                                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Content="On" Style="{StaticResource AccentButton}"
-                                                Width="72" Command="{Binding TurnOnCommand}"/>
-                                        <Button Content="Off" Style="{StaticResource FlatButton}"
-                                                Width="72" Margin="8,0,0,0" Command="{Binding TurnOffCommand}"/>
+                                        <Button Content="{loc:Tr On}" Style="{StaticResource AccentButton}"
+                                                MinWidth="72" Padding="16,8" Command="{Binding TurnOnCommand}"/>
+                                        <Button Content="{loc:Tr Off}" Style="{StaticResource FlatButton}"
+                                                MinWidth="72" Padding="16,8" Margin="8,0,0,0" Command="{Binding TurnOffCommand}"/>
                                     </StackPanel>
                                 </Grid>
                                 <Slider Grid.Row="1" Minimum="0" Maximum="100" Margin="0,16,0,0"
@@ -397,7 +408,7 @@
                 </TabItem>
 
                 <!-- Scenes -->
-                <TabItem Header="Scenes">
+                <TabItem Header="{loc:Tr Tab_Scenes}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl ItemsSource="{Binding Source={StaticResource ScenesView}}"
                                       ItemTemplate="{StaticResource SceneTemplate}">
@@ -408,15 +419,15 @@
                                             <StackPanel Orientation="Horizontal" Margin="10,18,0,4">
                                                 <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold"
                                                            VerticalAlignment="Center"/>
-                                                <Button Content="On" Style="{StaticResource AccentButton}"
+                                                <Button Content="{loc:Tr On}" Style="{StaticResource AccentButton}"
                                                         Padding="14,4" MinWidth="54" Margin="16,0,0,0"
                                                         Command="{Binding DataContext.RoomOnCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Name}"/>
-                                                <Button Content="Off" Style="{StaticResource FlatButton}"
+                                                <Button Content="{loc:Tr Off}" Style="{StaticResource FlatButton}"
                                                         Padding="14,4" MinWidth="54" Margin="8,0,0,0"
                                                         Command="{Binding DataContext.RoomOffCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Name}"/>
-                                                <Button Content="+ Scene" Style="{StaticResource FlatButton}"
+                                                <Button Content="{loc:Tr AddSceneChip}" Style="{StaticResource FlatButton}"
                                                         Padding="14,4" Margin="8,0,0,0"
                                                         Command="{Binding DataContext.AddSceneCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding Name}"/>

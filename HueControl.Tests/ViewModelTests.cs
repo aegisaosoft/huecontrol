@@ -122,7 +122,9 @@ public class ViewModelTests
 
         Assert.True(vm.AnyOn);
         Assert.InRange(vm.Brightness, 49, 51);
-        Assert.Contains("3 lights", vm.Subtitle);
+        // Subtitle is localized ("{class} · {n} lights"); assert on the language-independent parts.
+        Assert.Contains("Living room", vm.Subtitle);
+        Assert.Contains("3", vm.Subtitle);
     }
 
     [Fact]

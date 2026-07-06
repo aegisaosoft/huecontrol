@@ -40,7 +40,7 @@ public sealed class AccessoryViewModel : ObservableObject
         _name = name;
         TypeLabel = typeLabel;
         RoomName = roomName;
-        BatteryText = battery.HasValue ? $"Battery {battery}%" : "No battery";
+        BatteryText = battery.HasValue ? Loc.T("Battery_Fmt", battery.Value) : Loc.T("NoBattery");
         LastActivity = FormatLastUpdated(lastUpdated);
         IsSwitch = isSwitch;
         Rooms = new ObservableCollection<RoomOption>(rooms);
@@ -75,7 +75,7 @@ public sealed class AccessoryViewModel : ObservableObject
         set => SetProperty(ref _selectedRoom, value);
     }
 
-    public string Subtitle => $"{TypeLabel} · {BatteryText} · last seen {LastActivity}";
+    public string Subtitle => $"{TypeLabel} · {BatteryText} · {Loc.T("LastSeen_Fmt", LastActivity)}";
 
     public ICommand RenameCommand { get; }
     public ICommand DeleteCommand { get; }
@@ -86,7 +86,7 @@ public sealed class AccessoryViewModel : ObservableObject
     private static string FormatLastUpdated(string? value)
     {
         if (string.IsNullOrEmpty(value) || value == "none")
-            return "never";
+            return Loc.T("Never");
 
         if (DateTime.TryParse(value, CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTime dt))
@@ -125,7 +125,7 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
     private readonly HueApiClient _client;
     private readonly Func<string, bool> _confirm;
 
-    private string _statusMessage = "Loading accessories…";
+    private string _statusMessage = Loc.T("Status_LoadingAccessories");
     private bool _isBusy;
 
     public AccessoriesSectionViewModel(HueApiClient client, Func<string, bool> confirm)
@@ -141,33 +141,33 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    public string Title => "Accessories";
+    public string Title => Loc.T("Section_Accessories");
 
     public ObservableCollection<AccessoryViewModel> Accessories { get; } = new();
 
     /// <summary>Accessories grouped per the selected mode.</summary>
     public ICollectionView AccessoriesView { get; }
 
-    public string[] GroupModes { get; } = { "By room", "By type", "Flat" };
+    public string[] GroupModes { get; } = { Loc.T("Group_ByRoom"), Loc.T("Group_ByType"), Loc.T("Group_Flat") };
 
-    private string _groupMode = "By room";
-    public string SelectedGroupMode
+    private int _groupModeIndex;
+    public int SelectedGroupModeIndex
     {
-        get => _groupMode;
-        set { if (SetProperty(ref _groupMode, value)) ApplyGrouping(); }
+        get => _groupModeIndex;
+        set { if (SetProperty(ref _groupModeIndex, value)) ApplyGrouping(); }
     }
 
     private void ApplyGrouping()
     {
-        switch (_groupMode)
+        switch (_groupModeIndex)
         {
-            case "By type":
+            case 1: // By type
                 Grouping.Apply(AccessoriesView, nameof(AccessoryViewModel.TypeLabel), nameof(AccessoryViewModel.RoomName));
                 break;
-            case "Flat":
+            case 2: // Flat
                 Grouping.Apply(AccessoriesView);
                 break;
-            default:
+            default: // By room
                 Grouping.Apply(AccessoriesView, nameof(AccessoryViewModel.RoomName), nameof(AccessoryViewModel.TypeLabel));
                 break;
         }
@@ -211,11 +211,11 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
                 Accessories.Add(new AccessoryViewModel(
                     id, dto.Name, dto.ProductName ?? dto.Type ?? "Accessory",
                     dto.Config.Battery, dto.State.LastUpdated, isSwitch,
-                    sensorRoom.GetValueOrDefault(id, "Unassigned"), rooms,
+                    sensorRoom.GetValueOrDefault(id, Loc.T("Unassigned")), rooms,
                     _client, ReportError, DeleteAsync, ConfigureSwitchAsync));
             }
 
-            StatusMessage = $"{Accessories.Count} accessories.";
+            StatusMessage = Loc.T("Status_AccessorySummary_Fmt", Accessories.Count);
         }
         catch (Exception ex)
         {
@@ -229,16 +229,15 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
 
     private async Task ConfigureSwitchAsync(AccessoryViewModel accessory, RoomOption room)
     {
-        if (!_confirm($"Set \"{accessory.Name}\" to control {room.Name}?\n" +
-                      $"This replaces the switch's current button rules. ON activates {room.Name}'s first scene."))
+        if (!_confirm(Loc.T("Confirm_SetSwitch_Fmt", accessory.Name, room.Name)))
             return;
 
         IsBusy = true;
-        StatusMessage = $"Programming \"{accessory.Name}\"…";
+        StatusMessage = Loc.T("Status_Programming_Fmt", accessory.Name);
         try
         {
             await SwitchProgrammer.ConfigureRoomAsync(_client, accessory.Id, room.Id);
-            StatusMessage = $"\"{accessory.Name}\" now controls {room.Name} (ON = its first scene).";
+            StatusMessage = Loc.T("Status_SwitchSet_Fmt", accessory.Name, room.Name);
         }
         catch (Exception ex)
         {
@@ -252,14 +251,14 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
 
     private async Task DeleteAsync(AccessoryViewModel accessory)
     {
-        if (!_confirm($"Delete \"{accessory.Name}\" from the bridge?\nThe accessory will be unpaired."))
+        if (!_confirm(Loc.T("Confirm_DeleteAccessory_Fmt", accessory.Name)))
             return;
 
         try
         {
             await _client.DeleteSensorAsync(accessory.Id);
             Accessories.Remove(accessory);
-            StatusMessage = $"Deleted \"{accessory.Name}\".";
+            StatusMessage = Loc.T("Status_Deleted_Fmt", accessory.Name);
         }
         catch (Exception ex)
         {
@@ -267,5 +266,5 @@ public sealed class AccessoriesSectionViewModel : ObservableObject
         }
     }
 
-    private void ReportError(Exception ex) => StatusMessage = $"Error: {ex.Message}";
+    private void ReportError(Exception ex) => StatusMessage = Loc.T("Status_Error_Fmt", ex.Message);
 }

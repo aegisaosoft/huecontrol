@@ -1,6 +1,7 @@
 // Copyright (c) Aegis AO Soft LLC and Alexander Orlov. All rights reserved.
 
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -20,14 +21,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Services.Loc.ApplyFlowDirection(this);
 
         // The view supplies UI-only services the view model cannot own directly.
         _viewModel.ColorPicker = PickColor;
         _viewModel.AddBridgeDialog = ShowAddBridgeDialog;
-        _viewModel.AskName = (title, initial) => InputDialog.Ask(this, title, "Name", initial);
+        _viewModel.AskName = (title, initial) => InputDialog.Ask(this, title, Services.Loc.T("Ask_Name"), initial);
         _viewModel.PickScene = () => ScenePickerDialog.Pick(this);
         _viewModel.Confirm = message =>
-            MessageBox.Show(this, message, "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question)
+            MessageBox.Show(this, message, Services.Loc.T("Dialog_Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question)
                 == MessageBoxResult.Yes;
 
         DataContext = _viewModel;
@@ -73,15 +75,40 @@ public partial class MainWindow : Window
 
     private void OnToggleTheme(object sender, RoutedEventArgs e) => Services.ThemeManager.Toggle();
 
+    private void OnOpenLanguageMenu(object sender, RoutedEventArgs e)
+    {
+        var menu = new ContextMenu { MinWidth = 150, FontSize = 13 };
+        menu.SetResourceReference(BackgroundProperty, "SurfaceBrush");
+        menu.SetResourceReference(ForegroundProperty, "TextPrimaryBrush");
+
+        foreach ((string code, string name) in Services.Loc.Languages)
+        {
+            var item = new MenuItem
+            {
+                Header = name,
+                IsChecked = code == Services.Loc.Instance.Current,
+                Tag = code,
+                Padding = new Thickness(6, 4, 6, 4),
+            };
+            item.SetResourceReference(ForegroundProperty, "TextPrimaryBrush");
+            item.Click += (_, _) => Services.Loc.Instance.SetLanguage(code);
+            menu.Items.Add(item);
+        }
+
+        menu.PlacementTarget = LanguageButton;
+        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        menu.IsOpen = true;
+    }
+
     private void OnOpenSettings(object sender, RoutedEventArgs e)
     {
         ViewModels.SettingsViewModel? settings = _viewModel.CreateSettings(message =>
-            MessageBox.Show(this, message, "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question)
+            MessageBox.Show(this, message, Services.Loc.T("Dialog_Confirm"), MessageBoxButton.YesNo, MessageBoxImage.Question)
                 == MessageBoxResult.Yes);
 
         if (settings is null)
         {
-            MessageBox.Show(this, "Add and select a bridge first.", "Settings",
+            MessageBox.Show(this, Services.Loc.T("Msg_AddSelectBridgeFirst"), Services.Loc.T("Tip_Settings"),
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }

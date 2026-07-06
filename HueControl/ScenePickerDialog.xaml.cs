@@ -11,6 +11,7 @@ public partial class ScenePickerDialog : Window
     public ScenePickerDialog()
     {
         InitializeComponent();
+        Services.Loc.ApplyFlowDirection(this);
         Presets.ItemsSource = HueScenePresets.All;
         Presets.SelectedItem = HueScenePresets.All.FirstOrDefault();
     }

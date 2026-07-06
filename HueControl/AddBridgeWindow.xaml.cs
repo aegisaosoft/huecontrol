@@ -14,6 +14,7 @@ public partial class AddBridgeWindow : Window
     public AddBridgeWindow(IEnumerable<string> homeNames)
     {
         InitializeComponent();
+        Services.Loc.ApplyFlowDirection(this);
         _viewModel = new AddBridgeViewModel(homeNames);
         _viewModel.PairingSucceeded += OnPairingSucceeded;
         DataContext = _viewModel;

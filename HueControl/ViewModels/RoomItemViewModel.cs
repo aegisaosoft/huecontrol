@@ -74,7 +74,10 @@ public sealed class RoomItemViewModel : ObservableObject
         set => SetProperty(ref _name, value);
     }
 
-    public string Subtitle => $"{TypeLabel} · {Lights.Count(l => l.IsMember)} lights";
+    private string TypeWord => string.Equals(TypeLabel, "Zone", StringComparison.OrdinalIgnoreCase)
+        ? Loc.T("RoomType_Zone") : Loc.T("RoomType_Room");
+
+    public string Subtitle => $"{TypeWord} · {Loc.T("NLights_Fmt", Lights.Count(l => l.IsMember))}";
 
     public ICommand RenameCommand { get; }
     public ICommand ApplyLightsCommand { get; }
@@ -106,7 +109,7 @@ public sealed class RoomItemViewModel : ObservableObject
         string[] memberIds = Lights.Where(l => l.IsMember).Select(l => l.Id).ToArray();
         if (memberIds.Length == 0)
         {
-            _report("A room must keep at least one light.");
+            _report(Loc.T("Status_AtLeastOneLight"));
             return;
         }
 
@@ -115,7 +118,7 @@ public sealed class RoomItemViewModel : ObservableObject
         {
             await _client.SetGroupLightsAsync(Id, memberIds);
             OnPropertyChanged(nameof(Subtitle));
-            _report($"Updated lights in \"{_name}\".");
+            _report(Loc.T("Status_UpdatedLights_Fmt", _name));
         }
         catch (Exception ex)
         {

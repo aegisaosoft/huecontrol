@@ -16,7 +16,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
     private readonly HueApiClient _client;
     private readonly Func<string, bool> _confirm;
 
-    private string _statusMessage = "Loading devices…";
+    private string _statusMessage = Loc.T("Status_LoadingDevices");
     private bool _isBusy;
 
     public DevicesSectionViewModel(HueApiClient client, Func<string, bool> confirm)
@@ -33,33 +33,33 @@ public sealed class DevicesSectionViewModel : ObservableObject
         _ = LoadDevicesAsync();
     }
 
-    public string Title => "Devices";
+    public string Title => Loc.T("Section_Devices");
 
     public ObservableCollection<DeviceViewModel> Devices { get; } = new();
 
     /// <summary>Devices grouped per the selected mode.</summary>
     public ICollectionView DevicesView { get; }
 
-    public string[] GroupModes { get; } = { "By room", "By type", "Flat" };
+    public string[] GroupModes { get; } = { Loc.T("Group_ByRoom"), Loc.T("Group_ByType"), Loc.T("Group_Flat") };
 
-    private string _groupMode = "By room";
-    public string SelectedGroupMode
+    private int _groupModeIndex;
+    public int SelectedGroupModeIndex
     {
-        get => _groupMode;
-        set { if (SetProperty(ref _groupMode, value)) ApplyGrouping(); }
+        get => _groupModeIndex;
+        set { if (SetProperty(ref _groupModeIndex, value)) ApplyGrouping(); }
     }
 
     private void ApplyGrouping()
     {
-        switch (_groupMode)
+        switch (_groupModeIndex)
         {
-            case "By type":
+            case 1: // By type
                 Grouping.Apply(DevicesView, nameof(DeviceViewModel.TypeGroup), nameof(DeviceViewModel.RoomName));
                 break;
-            case "Flat":
+            case 2: // Flat
                 Grouping.Apply(DevicesView);
                 break;
-            default:
+            default: // By room
                 Grouping.Apply(DevicesView, nameof(DeviceViewModel.RoomName), nameof(DeviceViewModel.TypeGroup));
                 break;
         }
@@ -99,7 +99,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
                     id, DeviceKind.Light, dto.Name,
                     dto.ProductName ?? dto.Type ?? dto.ModelId ?? "Light",
                     dto.State.Reachable, newLightIds?.Contains(id) ?? false,
-                    lightRoom.GetValueOrDefault(id, "Unassigned"),
+                    lightRoom.GetValueOrDefault(id, Loc.T("Unassigned")),
                     _client, ReportError, DeleteDeviceAsync));
             }
 
@@ -109,13 +109,13 @@ public sealed class DevicesSectionViewModel : ObservableObject
                     id, DeviceKind.Accessory, dto.Name,
                     dto.ProductName ?? dto.Type ?? "Accessory",
                     reachable: true, newSensorIds?.Contains(id) ?? false,
-                    sensorRoom.GetValueOrDefault(id, "Unassigned"),
+                    sensorRoom.GetValueOrDefault(id, Loc.T("Unassigned")),
                     _client, ReportError, DeleteDeviceAsync));
             }
 
             int lightCount = Devices.Count(d => d.Kind == DeviceKind.Light);
             int accCount = Devices.Count(d => d.Kind == DeviceKind.Accessory);
-            StatusMessage = $"{lightCount} lights, {accCount} accessories.";
+            StatusMessage = Loc.T("Status_DeviceSummary_Fmt", lightCount, accCount);
         }
         catch (Exception ex)
         {
@@ -130,7 +130,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
     private async Task SearchAsync()
     {
         IsBusy = true;
-        StatusMessage = "Searching for new devices… (put accessories in pairing mode)";
+        StatusMessage = Loc.T("Status_SearchingNew");
         var newLights = new HashSet<string>();
         var newSensors = new HashSet<string>();
         try
@@ -151,7 +151,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
 
                 bool lightsDone = !string.Equals(lightScan.LastScan, "active", StringComparison.OrdinalIgnoreCase);
                 bool sensorsDone = !string.Equals(sensorScan.LastScan, "active", StringComparison.OrdinalIgnoreCase);
-                StatusMessage = $"Searching… found {newLights.Count + newSensors.Count} so far";
+                StatusMessage = Loc.T("Status_SearchingFound_Fmt", newLights.Count + newSensors.Count);
                 if (i >= 2 && lightsDone && sensorsDone)
                     break;
             }
@@ -159,8 +159,8 @@ public sealed class DevicesSectionViewModel : ObservableObject
             await LoadDevicesAsync(newLights, newSensors);
             int found = newLights.Count + newSensors.Count;
             StatusMessage = found > 0
-                ? $"Found {found} new device(s) — highlighted below."
-                : "No new devices found. For accessories, press their pairing button and search again.";
+                ? Loc.T("Status_FoundNew_Fmt", found)
+                : Loc.T("Status_NoNew");
         }
         catch (Exception ex)
         {
@@ -174,7 +174,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
 
     private async Task DeleteDeviceAsync(DeviceViewModel device)
     {
-        if (!_confirm($"Delete \"{device.Name}\" from the bridge?\nThe device will be unpaired and removed."))
+        if (!_confirm(Loc.T("Confirm_DeleteDevice_Fmt", device.Name)))
             return;
 
         try
@@ -185,7 +185,7 @@ public sealed class DevicesSectionViewModel : ObservableObject
                 await _client.DeleteSensorAsync(device.Id);
 
             Devices.Remove(device);
-            StatusMessage = $"Deleted \"{device.Name}\".";
+            StatusMessage = Loc.T("Status_Deleted_Fmt", device.Name);
         }
         catch (Exception ex)
         {
@@ -211,5 +211,5 @@ public sealed class DevicesSectionViewModel : ObservableObject
         return (lightRoom, sensorRoom);
     }
 
-    private void ReportError(Exception ex) => StatusMessage = $"Error: {ex.Message}";
+    private void ReportError(Exception ex) => StatusMessage = Loc.T("Status_Error_Fmt", ex.Message);
 }

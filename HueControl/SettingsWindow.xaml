@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:HueControl.ViewModels"
+        xmlns:loc="clr-namespace:HueControl.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="Settings" Height="700" Width="820"
@@ -86,7 +87,7 @@
                             <Border Background="{DynamicResource AccentBrush}" CornerRadius="4" Padding="6,1"
                                     Margin="0,0,8,0" VerticalAlignment="Center"
                                     Visibility="{Binding IsNew, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="NEW" FontSize="10" FontWeight="Bold"
+                                <TextBlock Text="{loc:Tr NEW}" FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentBrush}"/>
                             </Border>
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
@@ -96,9 +97,9 @@
                                    FontSize="11" Margin="0,6,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Save" Style="{StaticResource FlatButton}" MinWidth="64"
+                        <Button Content="{loc:Tr Save}" Style="{StaticResource FlatButton}" MinWidth="64"
                                 Command="{Binding RenameCommand}"/>
-                        <Button Content="Delete" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
+                        <Button Content="{loc:Tr Delete}" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
                                 Foreground="{DynamicResource DangerBrush}" Command="{Binding DeleteCommand}"/>
                     </StackPanel>
                 </Grid>
@@ -130,11 +131,11 @@
                     <!-- Switch → room binding (ON = the room's first scene) -->
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
                                 Visibility="{Binding IsSwitch, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="Controls" VerticalAlignment="Center" FontSize="12"
+                        <TextBlock Text="{loc:Tr Controls}" VerticalAlignment="Center" FontSize="12"
                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
                         <ComboBox ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}"
                                   DisplayMemberPath="Name" Width="170" Height="32" VerticalContentAlignment="Center"/>
-                        <Button Content="Set" Style="{StaticResource AccentButton}" MinWidth="64" Margin="8,0,0,0"
+                        <Button Content="{loc:Tr Set}" Style="{StaticResource AccentButton}" MinWidth="64" Margin="8,0,0,0"
                                 Command="{Binding ApplyRoomCommand}"/>
                     </StackPanel>
                 </StackPanel>
@@ -157,7 +158,7 @@
                         <TextBlock Text="{Binding RoomName}" Foreground="{DynamicResource TextSecondaryBrush}"
                                    FontSize="11" Margin="0,4,0,0"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Delete" Style="{StaticResource FlatButton}" MinWidth="64"
+                    <Button Grid.Column="2" Content="{loc:Tr Delete}" Style="{StaticResource FlatButton}" MinWidth="64"
                             VerticalAlignment="Center" Foreground="{DynamicResource DangerBrush}"
                             Command="{Binding DeleteCommand}"/>
                 </Grid>
@@ -186,7 +187,7 @@
                                     Foreground="{DynamicResource DangerBrush}" Command="{Binding DeleteCommand}"/>
                         </StackPanel>
                     </Grid>
-                    <Expander Header="Lights in this room" Margin="0,10,0,0"
+                    <Expander Header="{loc:Tr LightsInRoom}" Margin="0,10,0,0"
                               Foreground="{DynamicResource TextSecondaryBrush}">
                         <StackPanel Margin="0,8,0,0">
                             <ItemsControl ItemsSource="{Binding Lights}">
@@ -200,7 +201,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Button Content="Apply lights" Style="{StaticResource AccentButton}"
+                            <Button Content="{loc:Tr ApplyLights}" Style="{StaticResource AccentButton}"
                                     HorizontalAlignment="Left" Margin="0,8,0,0" Command="{Binding ApplyLightsCommand}"/>
                         </StackPanel>
                     </Expander>
@@ -212,19 +213,19 @@
         <DataTemplate DataType="{x:Type vm:DevicesSectionViewModel}">
             <DockPanel Margin="20,18,20,0">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="Devices" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Add any Hue device (lights, plugs, sensors, switches), rename or remove."
+                    <TextBlock Text="{loc:Tr Section_Devices}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="{loc:Tr Devices_Desc}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,10">
-                        <Button Content="Search for new devices" Style="{StaticResource AccentButton}"
+                        <Button Content="{loc:Tr SearchNewDevices}" Style="{StaticResource AccentButton}"
                                 Command="{Binding SearchCommand}"/>
-                        <Button Content="Refresh" Style="{StaticResource FlatButton}" Margin="8,0,0,0"
+                        <Button Content="{loc:Tr Refresh}" Style="{StaticResource FlatButton}" Margin="8,0,0,0"
                                 Command="{Binding RefreshCommand}"/>
-                        <TextBlock Text="Group:" VerticalAlignment="Center" FontSize="12"
+                        <TextBlock Text="{loc:Tr Group}" VerticalAlignment="Center" FontSize="12"
                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="16,0,6,0"/>
-                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedItem="{Binding SelectedGroupMode}"
+                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedIndex="{Binding SelectedGroupModeIndex}"
                                   Width="110" Height="30" VerticalContentAlignment="Center"/>
-                        <TextBlock Text="Working…" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{loc:Tr Working}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Margin="12,0,0,0"
                                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -249,17 +250,17 @@
         <DataTemplate DataType="{x:Type vm:AccessoriesSectionViewModel}">
             <DockPanel Margin="20,18,20,0">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="Accessories" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Switches, motion sensors and buttons — rename, check battery, remove."
+                    <TextBlock Text="{loc:Tr Section_Accessories}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="{loc:Tr Accessories_Desc}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,10">
-                        <Button Content="Refresh" Style="{StaticResource FlatButton}"
+                        <Button Content="{loc:Tr Refresh}" Style="{StaticResource FlatButton}"
                                 Command="{Binding RefreshCommand}"/>
-                        <TextBlock Text="Group:" VerticalAlignment="Center" FontSize="12"
+                        <TextBlock Text="{loc:Tr Group}" VerticalAlignment="Center" FontSize="12"
                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="16,0,6,0"/>
-                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedItem="{Binding SelectedGroupMode}"
+                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedIndex="{Binding SelectedGroupModeIndex}"
                                   Width="110" Height="30" VerticalContentAlignment="Center"/>
-                        <TextBlock Text="Working…" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{loc:Tr Working}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Margin="12,0,0,0"
                                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -284,8 +285,8 @@
         <DataTemplate DataType="{x:Type vm:ScenesSectionViewModel}">
             <DockPanel Margin="20,18,20,0">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="Scenes" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Add a built-in Hue scene to a room, or delete scenes."
+                    <TextBlock Text="{loc:Tr Section_Scenes}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="{loc:Tr Scenes_Desc}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,10">
                         <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}"
@@ -300,17 +301,17 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                        <TextBlock Text="in" VerticalAlignment="Center" Margin="8,0,8,0"
+                        <TextBlock Text="{loc:Tr In}" VerticalAlignment="Center" Margin="8,0,8,0"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <ComboBox ItemsSource="{Binding Rooms}" SelectedItem="{Binding SelectedRoom}"
                                   DisplayMemberPath="Name" Width="150" Height="32" VerticalContentAlignment="Center"/>
-                        <Button Content="Add scene" Style="{StaticResource AccentButton}" Margin="8,0,0,0"
+                        <Button Content="{loc:Tr AddSceneBtn}" Style="{StaticResource AccentButton}" Margin="8,0,0,0"
                                 Command="{Binding AddCommand}"/>
-                        <TextBlock Text="Group:" VerticalAlignment="Center" FontSize="12"
+                        <TextBlock Text="{loc:Tr Group}" VerticalAlignment="Center" FontSize="12"
                                    Foreground="{DynamicResource TextSecondaryBrush}" Margin="16,0,6,0"/>
-                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedItem="{Binding SelectedGroupMode}"
+                        <ComboBox ItemsSource="{Binding GroupModes}" SelectedIndex="{Binding SelectedGroupModeIndex}"
                                   Width="110" Height="30" VerticalContentAlignment="Center"/>
-                        <TextBlock Text="Working…" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{loc:Tr Working}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Margin="12,0,0,0"
                                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -334,17 +335,17 @@
         <DataTemplate DataType="{x:Type vm:RoomsSectionViewModel}">
             <DockPanel Margin="20,18,20,0">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="Rooms &amp; Zones" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Create rooms or zones, rename, delete, and choose which lights belong."
+                    <TextBlock Text="{loc:Tr Section_Rooms}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="{loc:Tr Rooms_Desc}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,10">
                         <TextBox Text="{Binding NewRoomName, UpdateSourceTrigger=PropertyChanged}"
                                  Width="200" VerticalAlignment="Center"/>
-                        <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding NewRoomType}"
+                        <ComboBox ItemsSource="{Binding Types}" SelectedIndex="{Binding NewRoomTypeIndex}"
                                   Width="110" Height="32" Margin="8,0,0,0" VerticalContentAlignment="Center"/>
-                        <Button Content="Create" Style="{StaticResource AccentButton}" Margin="8,0,0,0"
+                        <Button Content="{loc:Tr Create}" Style="{StaticResource AccentButton}" Margin="8,0,0,0"
                                 Command="{Binding CreateCommand}"/>
-                        <TextBlock Text="Working…" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
+                        <TextBlock Text="{loc:Tr Working}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Margin="12,0,0,0"
                                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -365,10 +366,10 @@
     <DockPanel LastChildFill="True">
         <!-- Title bar -->
         <Grid DockPanel.Dock="Top" Height="40" Background="{DynamicResource TitleBarBrush}">
-            <TextBlock Text="{Binding BridgeName, StringFormat='Settings — {0}'}" VerticalAlignment="Center"
+            <TextBlock Text="{Binding Header}" VerticalAlignment="Center"
                        Margin="16,0,0,0" Foreground="{DynamicResource OnAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
             <Button Style="{StaticResource CloseCaptionButton}" HorizontalAlignment="Right"
-                    Click="OnClose" ToolTip="Close">
+                    Click="OnClose" ToolTip="{loc:Tr Close}">
                 <Path Data="M0,0 L11,11 M11,0 L0,11"
                       Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.3"/>
             </Button>

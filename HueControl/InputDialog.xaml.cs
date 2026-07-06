@@ -11,6 +11,7 @@ public partial class InputDialog : Window
     public InputDialog(string title, string prompt, string initial = "")
     {
         InitializeComponent();
+        Services.Loc.ApplyFlowDirection(this);
         TitleText.Text = title;
         PromptText.Text = prompt;
         Input.Text = initial;

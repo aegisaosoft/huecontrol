@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:HueControl.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Add bridge" Height="548" Width="480"
+        Title="{loc:Tr AddBridge_Title}" Height="548" Width="480"
         Icon="Assets/app.ico"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -22,10 +23,10 @@
     <DockPanel LastChildFill="True">
         <!-- Custom title bar -->
         <Grid DockPanel.Dock="Top" Height="40" Background="{DynamicResource TitleBarBrush}">
-            <TextBlock Text="Add bridge" VerticalAlignment="Center" Margin="16,0,0,0"
+            <TextBlock Text="{loc:Tr AddBridge_Title}" VerticalAlignment="Center" Margin="16,0,0,0"
                        Foreground="{DynamicResource OnAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
             <Button Style="{StaticResource CloseCaptionButton}" HorizontalAlignment="Right"
-                    Click="OnCancel" ToolTip="Close">
+                    Click="OnCancel" ToolTip="{loc:Tr Close}">
                 <Path Data="M0,0 L11,11 M11,0 L0,11"
                       Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.3"/>
             </Button>
@@ -42,13 +43,13 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
-                <TextBlock Text="Add a Hue bridge" FontSize="20" FontWeight="Bold"/>
-                <TextBlock Text="Discover bridges on your network, or type the IP directly."
+                <TextBlock Text="{loc:Tr AddBridge_Heading}" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="{loc:Tr AddBridge_Sub}"
                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                            Margin="0,4,0,0" TextWrapping="Wrap"/>
             </StackPanel>
 
-            <Button Grid.Row="1" Content="Discover on network" Style="{StaticResource FlatButton}"
+            <Button Grid.Row="1" Content="{loc:Tr AddBridge_Discover}" Style="{StaticResource FlatButton}"
                     HorizontalAlignment="Left" Margin="0,18,0,0"
                     Command="{Binding DiscoverCommand}"/>
 
@@ -67,10 +68,10 @@
             </Border>
 
             <StackPanel Grid.Row="3" Margin="0,14,0,0">
-                <TextBlock Text="Bridge IP address" Foreground="{DynamicResource TextSecondaryBrush}"
+                <TextBlock Text="{loc:Tr AddBridge_IpLabel}" Foreground="{DynamicResource TextSecondaryBrush}"
                            FontSize="12" Margin="0,0,0,6"/>
                 <TextBox Text="{Binding ManualIp, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBlock Text="Home (pick or type a new one)" Foreground="{DynamicResource TextSecondaryBrush}"
+                <TextBlock Text="{loc:Tr AddBridge_HomeLabel}" Foreground="{DynamicResource TextSecondaryBrush}"
                            FontSize="12" Margin="0,10,0,6"/>
                 <ComboBox IsEditable="True" Height="34" VerticalContentAlignment="Center"
                           ItemsSource="{Binding HomeNames}"
@@ -86,9 +87,9 @@
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="Cancel" Style="{StaticResource FlatButton}"
+                <Button Grid.Column="0" Content="{loc:Tr Cancel}" Style="{StaticResource FlatButton}"
                         Click="OnCancel"/>
-                <Button Grid.Column="2" Content="Pair (press link button)" Style="{StaticResource AccentButton}"
+                <Button Grid.Column="2" Content="{loc:Tr AddBridge_Pair}" Style="{StaticResource AccentButton}"
                         Command="{Binding PairCommand}"/>
             </Grid>
         </Grid>

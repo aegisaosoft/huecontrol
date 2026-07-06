@@ -11,6 +11,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow(SettingsViewModel viewModel)
     {
         InitializeComponent();
+        Services.Loc.ApplyFlowDirection(this);
         DataContext = viewModel;
     }
 

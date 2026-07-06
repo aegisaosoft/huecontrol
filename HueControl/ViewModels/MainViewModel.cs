@@ -22,7 +22,7 @@ public sealed class MainViewModel : ObservableObject
     private GroupViewModel? _selectedGroup;
     private GroupViewModel? _syncGroup;
     private bool _syncing;
-    private string _statusMessage = "Add a bridge to get started.";
+    private string _statusMessage = Loc.T("Status_AddBridgeToStart");
     private bool _isLoading;
 
     public MainViewModel()
@@ -118,7 +118,7 @@ public sealed class MainViewModel : ObservableObject
 
     /// <summary>Builds the Settings view model for the active bridge, or null if none selected.</summary>
     public SettingsViewModel? CreateSettings(Func<string, bool> confirm)
-        => _client is null ? null : new SettingsViewModel(SelectedBridge?.Name ?? "this bridge", _client, confirm);
+        => _client is null ? null : new SettingsViewModel(SelectedBridge?.Name ?? Loc.T("ThisBridge"), _client, confirm);
 
     private void AddBridge()
     {
@@ -163,13 +163,13 @@ public sealed class MainViewModel : ObservableObject
 
     private void AddHome()
     {
-        string? name = AskName("Add home", string.Empty);
+        string? name = AskName(Loc.T("Ask_AddHome"), string.Empty);
         if (name is null)
             return;
 
         if (_homes.Any(h => string.Equals(h.Name, name, StringComparison.OrdinalIgnoreCase)))
         {
-            StatusMessage = $"A home named \"{name}\" already exists.";
+            StatusMessage = Loc.T("Status_HomeExists_Fmt", name);
             return;
         }
 
@@ -180,7 +180,7 @@ public sealed class MainViewModel : ObservableObject
 
     private void RenameHome(HomeViewModel home)
     {
-        string? name = AskName("Rename home", home.Name);
+        string? name = AskName(Loc.T("Ask_RenameHome"), home.Name);
         if (name is null)
             return;
 
@@ -192,7 +192,7 @@ public sealed class MainViewModel : ObservableObject
     private void DeleteHome(HomeViewModel home)
     {
         int count = home.Home.Bridges.Count;
-        if (!Confirm($"Delete home \"{home.Name}\" and its {count} bridge(s) from the app?\nThe bridges stay paired on your network."))
+        if (!Confirm(Loc.T("Confirm_DeleteHome_Fmt", home.Name, count)))
             return;
 
         bool removedSelected = home.Home.Bridges.Any(b => b.IpAddress == _selectedBridge?.IpAddress);
@@ -232,12 +232,12 @@ public sealed class MainViewModel : ObservableObject
 
         if (_client is null)
         {
-            StatusMessage = "No bridge selected.";
+            StatusMessage = Loc.T("Status_NoBridgeSelected");
             return;
         }
 
         IsLoading = true;
-        StatusMessage = $"Loading {SelectedBridge?.Name} ({_client.IpAddress})…";
+        StatusMessage = Loc.T("Status_LoadingBridge_Fmt", SelectedBridge?.Name, _client.IpAddress);
         try
         {
             var lights = await _client.GetLightsAsync();
@@ -267,11 +267,11 @@ public sealed class MainViewModel : ObservableObject
                 Groups.Insert(0, CreateAllGroup());
 
             SelectedGroup = Groups.FirstOrDefault();
-            StatusMessage = $"{SelectedBridge?.Name}: {Lights.Count} lights, {roomCount} rooms, {Scenes.Count} scenes.";
+            StatusMessage = Loc.T("Status_BridgeSummary_Fmt", SelectedBridge?.Name, Lights.Count, roomCount, Scenes.Count);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to load bridge: {ex.Message}";
+            StatusMessage = Loc.T("Status_FailedLoad_Fmt", ex.Message);
         }
         finally
         {
@@ -305,9 +305,9 @@ public sealed class MainViewModel : ObservableObject
         int avgBrightness = (int)Math.Round(Lights.Average(l => l.Brightness) / 100.0 * 254.0);
         var dto = new HueGroupDto
         {
-            Name = "All",
+            Name = Loc.T("All"),
             Type = "Room",
-            Class = "Every room",
+            Class = Loc.T("EveryRoom"),
             Lights = Lights.Select(l => l.Id).ToList(),
             State = new HueGroupState { AnyOn = Lights.Any(l => l.On), AllOn = Lights.All(l => l.On) },
             Action = new HueState { Brightness = avgBrightness },
@@ -427,7 +427,7 @@ public sealed class MainViewModel : ObservableObject
         {
             await HueScenePresets.CreateAsync(_client, preset, room.Id);
             await ReloadAsync();
-            StatusMessage = $"Added \"{preset.Name}\" to {roomName}.";
+            StatusMessage = Loc.T("Status_AddedScene_Fmt", preset.Name, roomName);
         }
         catch (Exception ex)
         {
@@ -440,14 +440,14 @@ public sealed class MainViewModel : ObservableObject
     {
         if (_client is null || scene is null)
             return;
-        if (!Confirm($"Delete scene \"{scene.Name}\"?"))
+        if (!Confirm(Loc.T("Confirm_DeleteScene_Fmt", scene.Name)))
             return;
 
         try
         {
             await _client.DeleteSceneAsync(scene.Id);
             await ReloadAsync();
-            StatusMessage = $"Deleted scene \"{scene.Name}\".";
+            StatusMessage = Loc.T("Status_DeletedScene_Fmt", scene.Name);
         }
         catch (Exception ex)
         {
@@ -461,7 +461,7 @@ public sealed class MainViewModel : ObservableObject
 
     private void ReportError(Exception ex)
     {
-        void Set() => StatusMessage = $"Error: {ex.Message}";
+        void Set() => StatusMessage = Loc.T("Status_Error_Fmt", ex.Message);
         if (Application.Current?.Dispatcher.CheckAccess() ?? true)
             Set();
         else

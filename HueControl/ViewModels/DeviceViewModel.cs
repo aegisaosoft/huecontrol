@@ -52,9 +52,9 @@ public sealed class DeviceViewModel : ObservableObject
     public bool IsNew { get; }
     public string RoomName { get; }
 
-    public string KindLabel => Kind == DeviceKind.Light ? "Light" : "Accessory";
-    public string TypeGroup => Kind == DeviceKind.Light ? "Lights" : "Accessories";
-    public string Subtitle => Reachable ? $"{KindLabel} · {TypeLabel}" : $"{KindLabel} · {TypeLabel} · unreachable";
+    public string KindLabel => Kind == DeviceKind.Light ? Loc.T("Kind_Light") : Loc.T("Kind_Accessory");
+    public string TypeGroup => Kind == DeviceKind.Light ? Loc.T("Type_Lights") : Loc.T("Section_Accessories");
+    public string Subtitle => Reachable ? $"{KindLabel} · {TypeLabel}" : $"{KindLabel} · {TypeLabel} · {Loc.T("Unreachable")}";
 
     public string Name
     {

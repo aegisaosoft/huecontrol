@@ -14,10 +14,10 @@ public sealed class RoomsSectionViewModel : ObservableObject
     private readonly HueApiClient _client;
     private readonly Func<string, bool> _confirm;
 
-    private string _statusMessage = "Loading rooms…";
+    private string _statusMessage = Loc.T("Status_LoadingRooms");
     private bool _isBusy;
     private string _newRoomName = string.Empty;
-    private string _newRoomType = "Room";
+    private int _newRoomTypeIndex;
 
     public RoomsSectionViewModel(HueApiClient client, Func<string, bool> confirm)
     {
@@ -30,10 +30,13 @@ public sealed class RoomsSectionViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    public string Title => "Rooms & Zones";
+    public string Title => Loc.T("Section_Rooms");
 
     public ObservableCollection<RoomItemViewModel> Rooms { get; } = new();
-    public string[] Types { get; } = { "Room", "Zone" };
+    public string[] Types { get; } = { Loc.T("RoomType_Room"), Loc.T("RoomType_Zone") };
+
+    /// <summary>Bridge group type for the currently selected new-room type.</summary>
+    private string ApiType => _newRoomTypeIndex == 1 ? "Zone" : "Room";
 
     public ICommand RefreshCommand { get; }
     public ICommand CreateCommand { get; }
@@ -44,10 +47,10 @@ public sealed class RoomsSectionViewModel : ObservableObject
         set => SetProperty(ref _newRoomName, value);
     }
 
-    public string NewRoomType
+    public int NewRoomTypeIndex
     {
-        get => _newRoomType;
-        set => SetProperty(ref _newRoomType, value);
+        get => _newRoomTypeIndex;
+        set => SetProperty(ref _newRoomTypeIndex, value);
     }
 
     public string StatusMessage
@@ -89,7 +92,7 @@ public sealed class RoomsSectionViewModel : ObservableObject
                     _client, ReportError, DeleteRoomAsync, m => StatusMessage = m));
             }
 
-            StatusMessage = $"{Rooms.Count} rooms & zones.";
+            StatusMessage = Loc.T("Status_RoomsSummary_Fmt", Rooms.Count);
         }
         catch (Exception ex)
         {
@@ -106,7 +109,7 @@ public sealed class RoomsSectionViewModel : ObservableObject
         string name = NewRoomName.Trim();
         if (string.IsNullOrEmpty(name))
         {
-            StatusMessage = "Enter a name.";
+            StatusMessage = Loc.T("Status_EnterName");
             return;
         }
 
@@ -114,10 +117,11 @@ public sealed class RoomsSectionViewModel : ObservableObject
         try
         {
             // Created empty; assign lights via each room's light list afterwards.
-            await _client.CreateGroupAsync(name, NewRoomType, Array.Empty<string>());
+            await _client.CreateGroupAsync(name, ApiType, Array.Empty<string>());
+            string typeWord = Types[_newRoomTypeIndex].ToLowerInvariant();
             NewRoomName = string.Empty;
             await LoadAsync();
-            StatusMessage = $"Created {NewRoomType.ToLowerInvariant()} \"{name}\". Tick lights and Apply.";
+            StatusMessage = Loc.T("Status_CreatedRoom_Fmt", typeWord, name);
         }
         catch (Exception ex)
         {
@@ -131,14 +135,16 @@ public sealed class RoomsSectionViewModel : ObservableObject
 
     private async Task DeleteRoomAsync(RoomItemViewModel room)
     {
-        if (!_confirm($"Delete \"{room.Name}\"?\nThe {room.TypeLabel.ToLowerInvariant()} is removed; its lights stay paired."))
+        string typeWord = (string.Equals(room.TypeLabel, "Zone", StringComparison.OrdinalIgnoreCase)
+            ? Loc.T("RoomType_Zone") : Loc.T("RoomType_Room")).ToLowerInvariant();
+        if (!_confirm(Loc.T("Confirm_DeleteRoom_Fmt", room.Name, typeWord)))
             return;
 
         try
         {
             await _client.DeleteGroupAsync(room.Id);
             Rooms.Remove(room);
-            StatusMessage = $"Deleted \"{room.Name}\".";
+            StatusMessage = Loc.T("Status_Deleted_Fmt", room.Name);
         }
         catch (Exception ex)
         {
@@ -146,5 +152,5 @@ public sealed class RoomsSectionViewModel : ObservableObject
         }
     }
 
-    private void ReportError(Exception ex) => StatusMessage = $"Error: {ex.Message}";
+    private void ReportError(Exception ex) => StatusMessage = Loc.T("Status_Error_Fmt", ex.Message);
 }

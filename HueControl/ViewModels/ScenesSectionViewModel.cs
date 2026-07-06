@@ -19,7 +19,7 @@ public sealed class ScenesSectionViewModel : ObservableObject
     private readonly HueApiClient _client;
     private readonly Func<string, bool> _confirm;
 
-    private string _statusMessage = "Loading scenes…";
+    private string _statusMessage = Loc.T("Status_LoadingScenes");
     private bool _isBusy;
     private RoomOption? _selectedRoom;
     private ScenePreset? _selectedPreset;
@@ -39,7 +39,7 @@ public sealed class ScenesSectionViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    public string Title => "Scenes";
+    public string Title => Loc.T("Section_Scenes");
 
     public ObservableCollection<SceneItemViewModel> Scenes { get; } = new();
     public ObservableCollection<RoomOption> Rooms { get; } = new();
@@ -52,13 +52,13 @@ public sealed class ScenesSectionViewModel : ObservableObject
     public ICommand RefreshCommand { get; }
     public ICommand AddCommand { get; }
 
-    public string[] GroupModes { get; } = { "By room", "Flat" };
+    public string[] GroupModes { get; } = { Loc.T("Group_ByRoom"), Loc.T("Group_Flat") };
 
-    private string _groupMode = "By room";
-    public string SelectedGroupMode
+    private int _groupModeIndex;
+    public int SelectedGroupModeIndex
     {
-        get => _groupMode;
-        set { if (SetProperty(ref _groupMode, value)) ApplyGrouping(); }
+        get => _groupModeIndex;
+        set { if (SetProperty(ref _groupModeIndex, value)) ApplyGrouping(); }
     }
 
     public RoomOption? SelectedRoom
@@ -87,9 +87,9 @@ public sealed class ScenesSectionViewModel : ObservableObject
 
     private void ApplyGrouping()
     {
-        if (_groupMode == "Flat")
+        if (_groupModeIndex == 1) // Flat
             Grouping.Apply(ScenesView);
-        else
+        else // By room
             Grouping.Apply(ScenesView, nameof(SceneItemViewModel.RoomName));
     }
 
@@ -116,11 +116,11 @@ public sealed class ScenesSectionViewModel : ObservableObject
             {
                 string room = !string.IsNullOrEmpty(dto.Group) && groups.TryGetValue(dto.Group!, out var g)
                     ? g.Name
-                    : "Custom";
+                    : Loc.T("Custom");
                 Scenes.Add(new SceneItemViewModel(id, dto.Name, room, DeleteSceneAsync));
             }
 
-            StatusMessage = $"{Scenes.Count} scenes.";
+            StatusMessage = Loc.T("Status_ScenesSummary_Fmt", Scenes.Count);
         }
         catch (Exception ex)
         {
@@ -136,12 +136,12 @@ public sealed class ScenesSectionViewModel : ObservableObject
     {
         if (SelectedPreset is null)
         {
-            StatusMessage = "Pick a Hue scene.";
+            StatusMessage = Loc.T("Status_PickScene");
             return;
         }
         if (SelectedRoom is null)
         {
-            StatusMessage = "Pick a room.";
+            StatusMessage = Loc.T("Status_PickRoom");
             return;
         }
 
@@ -150,7 +150,7 @@ public sealed class ScenesSectionViewModel : ObservableObject
         {
             await HueScenePresets.CreateAsync(_client, SelectedPreset, SelectedRoom.Id);
             await LoadAsync();
-            StatusMessage = $"Added \"{SelectedPreset.Name}\" to {SelectedRoom.Name}.";
+            StatusMessage = Loc.T("Status_AddedScene_Fmt", SelectedPreset.Name, SelectedRoom.Name);
         }
         catch (Exception ex)
         {
@@ -164,14 +164,14 @@ public sealed class ScenesSectionViewModel : ObservableObject
 
     private async Task DeleteSceneAsync(SceneItemViewModel scene)
     {
-        if (!_confirm($"Delete scene \"{scene.Name}\"?"))
+        if (!_confirm(Loc.T("Confirm_DeleteScene_Fmt", scene.Name)))
             return;
 
         try
         {
             await _client.DeleteSceneAsync(scene.Id);
             Scenes.Remove(scene);
-            StatusMessage = $"Deleted scene \"{scene.Name}\".";
+            StatusMessage = Loc.T("Status_DeletedScene_Fmt", scene.Name);
         }
         catch (Exception ex)
         {
@@ -179,5 +179,5 @@ public sealed class ScenesSectionViewModel : ObservableObject
         }
     }
 
-    private void ReportError(Exception ex) => StatusMessage = $"Error: {ex.Message}";
+    private void ReportError(Exception ex) => StatusMessage = Loc.T("Status_Error_Fmt", ex.Message);
 }

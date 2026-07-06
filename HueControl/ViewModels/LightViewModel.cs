@@ -96,7 +96,7 @@ public sealed class LightViewModel : ObservableObject
         private set => SetProperty(ref _colorBrush, value);
     }
 
-    public string StatusText => Reachable ? $"{ModelId}" : "unreachable";
+    public string StatusText => Reachable ? $"{ModelId}" : Loc.T("Unreachable");
 
     /// <summary>Updates the displayed brightness from room sync, without sending to the bridge.</summary>
     public void SyncSetBrightness(double value)
