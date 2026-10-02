@@ -128,6 +128,93 @@ public class ViewModelTests
     }
 
     [Fact]
+    public void Light_Unreachable_ReportsOfflineAndStatusText()
+    {
+        var (client, _) = MakeClient();
+        var dto = new HueLightDto
+        {
+            Name = "Vent 1",
+            Type = "Extended color light",
+            ModelId = "LCT007",
+            State = new HueState { On = true, Brightness = 162, Reachable = false },
+        };
+
+        var vm = new LightViewModel("6", dto, client, _ => { }, _ => null);
+
+        Assert.False(vm.Reachable);
+        Assert.True(vm.IsOffline);
+        Assert.Equal(Loc.T("Offline_NoPower"), vm.StatusText);
+    }
+
+    [Fact]
+    public void Light_ApplyState_RaisesIsOfflineWhenReachabilityChanges()
+    {
+        var (client, _) = MakeClient();
+        var dto = new HueLightDto
+        {
+            Name = "Right",
+            Type = "Extended color light",
+            State = new HueState { On = true, Brightness = 254, Reachable = true },
+        };
+        var vm = new LightViewModel("10", dto, client, _ => { }, _ => null);
+
+        var raised = new List<string>();
+        vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName!);
+
+        vm.ApplyState(new HueLightDto
+        {
+            Name = "Right",
+            Type = "Extended color light",
+            State = new HueState { On = true, Brightness = 254, Reachable = false },
+        });
+
+        Assert.True(vm.IsOffline);
+        Assert.Contains(nameof(LightViewModel.IsOffline), raised);
+        Assert.Contains(nameof(LightViewModel.StatusText), raised);
+    }
+
+    [Fact]
+    public void Group_UpdateOfflineCount_CountsOnlyOwnUnreachableLights()
+    {
+        var (client, _) = MakeClient();
+
+        LightViewModel Light(string id, bool reachable) => new(
+            id,
+            new HueLightDto
+            {
+                Name = $"Light {id}",
+                Type = "Extended color light",
+                State = new HueState { On = true, Brightness = 254, Reachable = reachable },
+            },
+            client, _ => { }, _ => null);
+
+        var allLights = new[]
+        {
+            Light("6", reachable: false),  // living room, offline
+            Light("7", reachable: false),  // living room, offline
+            Light("8", reachable: true),   // living room, online
+            Light("24", reachable: false), // a different room, must be ignored
+        };
+
+        var dto = new HueGroupDto
+        {
+            Name = "Living room",
+            Type = "Room",
+            Class = "Living room",
+            Lights = new List<string> { "6", "7", "8" },
+            State = new HueGroupState { AnyOn = true, AllOn = true },
+            Action = new HueState { Brightness = 162 },
+        };
+        var vm = new GroupViewModel("81", dto, client, _ => { });
+
+        vm.UpdateOfflineCount(allLights);
+
+        Assert.Equal(2, vm.OfflineCount);
+        Assert.True(vm.HasOffline);
+        Assert.Contains(Loc.T("NOffline_Fmt", 2), vm.Subtitle);
+    }
+
+    [Fact]
     public async Task Group_TurnOn_SendsActionToBridge()
     {
         var (client, handler) = MakeClient();

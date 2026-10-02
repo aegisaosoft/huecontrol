@@ -87,8 +87,21 @@ public sealed class LightViewModel : ObservableObject
     public bool Reachable
     {
         get => _reachable;
-        private set => SetProperty(ref _reachable, value);
+        private set
+        {
+            if (SetProperty(ref _reachable, value))
+            {
+                OnPropertyChanged(nameof(IsOffline));
+                OnPropertyChanged(nameof(StatusText));
+            }
+        }
     }
+
+    /// <summary>
+    /// True when the bridge cannot reach the bulb. Almost always means the fixture's
+    /// power switch is off or the bulb is out of Zigbee range, not an app problem.
+    /// </summary>
+    public bool IsOffline => !Reachable;
 
     public Brush ColorBrush
     {
@@ -96,7 +109,7 @@ public sealed class LightViewModel : ObservableObject
         private set => SetProperty(ref _colorBrush, value);
     }
 
-    public string StatusText => Reachable ? $"{ModelId}" : Loc.T("Unreachable");
+    public string StatusText => Reachable ? ModelId : Loc.T("Offline_NoPower");
 
     /// <summary>Updates the displayed brightness from room sync, without sending to the bridge.</summary>
     public void SyncSetBrightness(double value)
@@ -124,6 +137,7 @@ public sealed class LightViewModel : ObservableObject
             Brightness = Math.Round(dto.State.Brightness / 254.0 * 100.0);
             Reachable = dto.State.Reachable;
             ColorBrush = new SolidColorBrush(ResolveColor(dto));
+            OnPropertyChanged(nameof(IsOffline));
             OnPropertyChanged(nameof(StatusText));
         }
         finally

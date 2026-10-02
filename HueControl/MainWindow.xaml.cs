@@ -91,13 +91,26 @@ public partial class MainWindow : Window
                 Padding = new Thickness(6, 4, 6, 4),
             };
             item.SetResourceReference(ForegroundProperty, "TextPrimaryBrush");
-            item.Click += (_, _) => Services.Loc.Instance.SetLanguage(code);
+            item.Click += (_, _) => OnLanguageChosen(code);
             menu.Items.Add(item);
         }
 
         menu.PlacementTarget = LanguageButton;
         menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
         menu.IsOpen = true;
+    }
+
+    private void OnLanguageChosen(string code)
+    {
+        if (code == Services.Loc.Instance.Current)
+            return;
+
+        Services.Loc.Instance.SetLanguage(code);
+
+        // XAML text rebinds live, but view models build strings (room subtitles, the "All" group,
+        // the status line) when data loads, so reload to rebuild them in the new language.
+        if (_viewModel.RefreshCommand.CanExecute(null))
+            _viewModel.RefreshCommand.Execute(null);
     }
 
     private void OnOpenSettings(object sender, RoutedEventArgs e)

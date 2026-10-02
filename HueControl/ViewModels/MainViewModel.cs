@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using HueControl.Models;
 using HueControl.Mvvm;
 using HueControl.Services;
@@ -25,6 +26,11 @@ public sealed class MainViewModel : ObservableObject
     private string _statusMessage = Loc.T("Status_AddBridgeToStart");
     private bool _isLoading;
 
+    // Polls the bridge so on/off and reachability (e.g. a light that just regained
+    // power) stay current without the user having to hit Refresh.
+    private readonly DispatcherTimer _pollTimer;
+    private bool _polling;
+
     public MainViewModel()
     {
         AddBridgeCommand = new RelayCommand(AddBridge);
@@ -41,6 +47,21 @@ public sealed class MainViewModel : ObservableObject
         _homes = _store.LoadHomes();
         RebuildHomes();
         SelectedBridge = _homes.SelectMany(h => h.Bridges).FirstOrDefault();
+
+        _pollTimer = new DispatcherTimer();
+        _pollTimer.Tick += async (_, _) => await RefreshStatesAsync();
+        AppPreferences.Changed += ApplyPollingPreferences;
+        ApplyPollingPreferences();
+    }
+
+    /// <summary>Applies the auto-refresh preference to the poll timer (interval + on/off).</summary>
+    private void ApplyPollingPreferences()
+    {
+        _pollTimer.Interval = TimeSpan.FromSeconds(AppPreferences.AutoRefreshSeconds);
+        if (AppPreferences.AutoRefreshEnabled)
+            _pollTimer.Start();
+        else
+            _pollTimer.Stop();
     }
 
     /// <summary>Set by the view to show the native colour picker.</summary>
@@ -266,6 +287,11 @@ public sealed class MainViewModel : ObservableObject
             if (Lights.Count > 0)
                 Groups.Insert(0, CreateAllGroup());
 
+            // Surface unreachable lights on each room chip so an offline room is
+            // obvious before it is even opened.
+            foreach (GroupViewModel group in Groups)
+                group.UpdateOfflineCount(Lights);
+
             SelectedGroup = Groups.FirstOrDefault();
             StatusMessage = Loc.T("Status_BridgeSummary_Fmt", SelectedBridge?.Name, Lights.Count, roomCount, Scenes.Count);
         }
@@ -276,6 +302,75 @@ public sealed class MainViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Lightweight background refresh: pulls fresh light/group state from the bridge and
+    /// applies it to the existing view models in place. Unlike <see cref="ReloadAsync"/>
+    /// it rebuilds nothing, so the selected room, scroll position and scenes are untouched.
+    /// </summary>
+    private async Task RefreshStatesAsync()
+    {
+        // Skip while a full load is running, no bridge is selected, or a previous poll
+        // is still in flight (the bridge is slow and ticks must not stack up).
+        if (_client is null || IsLoading || _polling)
+            return;
+
+        _polling = true;
+        try
+        {
+            Dictionary<string, HueLightDto> lights;
+            Dictionary<string, HueGroupDto> groups;
+            try
+            {
+                lights = await _client.GetLightsAsync();
+                groups = await _client.GetGroupsAsync();
+            }
+            catch
+            {
+                // Transient network/bridge blip: keep the last known state and try again next tick.
+                return;
+            }
+
+            // The bridge is the source of truth here, so mute the room<->light mirror
+            // handlers: each view model is refreshed directly from its bridge state.
+            _syncing = true;
+            try
+            {
+                foreach (LightViewModel light in Lights)
+                {
+                    if (lights.TryGetValue(light.Id, out HueLightDto? dto))
+                        light.ApplyState(dto);
+                }
+
+                foreach (GroupViewModel group in Groups)
+                {
+                    if (group.Id == "0")
+                    {
+                        // The synthetic "All" group has no bridge row; recompute it from the lights.
+                        if (Lights.Count > 0)
+                        {
+                            group.SyncSetAnyOn(Lights.Any(l => l.On));
+                            group.SyncSetBrightness(Lights.Average(l => l.Brightness));
+                        }
+                    }
+                    else if (groups.TryGetValue(group.Id, out HueGroupDto? dto))
+                    {
+                        group.ApplyState(dto);
+                    }
+
+                    group.UpdateOfflineCount(Lights);
+                }
+            }
+            finally
+            {
+                _syncing = false;
+            }
+        }
+        finally
+        {
+            _polling = false;
         }
     }
 

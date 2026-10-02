@@ -13,18 +13,18 @@
       Publisher = the CN=... string shown under Product Identity
   -->
   <Identity
-    Name="AegisAOSoftLLC.HueControl"
-    Publisher="CN=Aegis AO Soft LLC"
+    Name="AegisAOSoftLLC.LightControlforHue"
+    Publisher="CN=6AB5C269-0D91-49FA-BEBB-EB82E50EBD96"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>HueControl</DisplayName>
+    <DisplayName>Light Control for Hue</DisplayName>
     <PublisherDisplayName>Aegis AO Soft LLC</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>
@@ -40,7 +40,7 @@
                 Executable="HueControl\HueControl.exe"
                 EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="HueControl"
+        DisplayName="Light Control for Hue"
         Description="Manage your Philips Hue lights, rooms and scenes over the local network."
         BackgroundColor="#16161C"
         Square150x150Logo="Images\Square150x150Logo.png"

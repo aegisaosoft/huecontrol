@@ -8,7 +8,7 @@
         xmlns:loc="clr-namespace:HueControl.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="HueControl" Height="740" Width="1140"
+        Title="Light Control for Hue" Height="740" Width="1140"
         MinHeight="560" MinWidth="880"
         Icon="Assets/app.ico"
         WindowStyle="None"
@@ -64,27 +64,45 @@
             <Border Style="{StaticResource CardBorder}" Width="250">
                 <StackPanel>
                     <Grid>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel x:Name="LightHeader" Orientation="Horizontal">
                             <Border Width="18" Height="18" CornerRadius="9"
                                     Background="{Binding ColorBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
                                        Margin="10,0,0,0" VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis" MaxWidth="150"/>
                         </StackPanel>
+                        <!-- Reachable: the live on/off switch -->
                         <ToggleButton Style="{StaticResource SwitchToggle}"
                                       HorizontalAlignment="Right"
-                                      IsChecked="{Binding On, Mode=TwoWay}"/>
+                                      IsChecked="{Binding On, Mode=TwoWay}"
+                                      Visibility="{Binding Reachable, Converter={StaticResource BoolToVis}}"/>
+                        <!-- Offline: a badge takes the switch's place so it never looks like a dead button -->
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Background="{DynamicResource DangerBrush}" CornerRadius="6" Padding="8,3"
+                                ToolTip="{loc:Tr Offline_Tooltip}"
+                                Visibility="{Binding IsOffline, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{loc:Tr Offline_Badge}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                        </Border>
                     </Grid>
-                    <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource TextSecondaryBrush}"
-                               FontSize="11" Margin="0,6,0,0"/>
+                    <TextBlock x:Name="LightStatus" Text="{Binding StatusText}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
                     <Slider Minimum="0" Maximum="100" Margin="0,14,0,0"
-                            Value="{Binding Brightness, Mode=TwoWay}"/>
+                            Value="{Binding Brightness, Mode=TwoWay}"
+                            IsEnabled="{Binding Reachable}"/>
                     <Button Content="{loc:Tr ChooseColour}" Style="{StaticResource FlatButton}"
                             Margin="0,14,0,0" HorizontalAlignment="Stretch"
                             Command="{Binding PickColorCommand}"
+                            IsEnabled="{Binding Reachable}"
                             Visibility="{Binding SupportsColor, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
             </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsOffline}" Value="True">
+                    <Setter TargetName="LightHeader" Property="Opacity" Value="0.4"/>
+                    <Setter TargetName="LightStatus" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
         </DataTemplate>
 
         <!-- Room selector chip -->
@@ -98,14 +116,29 @@
                                 <DataTrigger Binding="{Binding AnyOn}" Value="True">
                                     <Setter Property="Fill" Value="{DynamicResource AccentBrush}"/>
                                 </DataTrigger>
+                                <!-- An offline light in the room overrides the on/off colour -->
+                                <DataTrigger Binding="{Binding HasOffline}" Value="True">
+                                    <Setter Property="Fill" Value="{DynamicResource DangerBrush}"/>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Ellipse.Style>
                 </Ellipse>
                 <StackPanel Margin="10,0,0,0">
                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
-                    <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource TextSecondaryBrush}"
-                               FontSize="10" Margin="0,1,0,0"/>
+                    <TextBlock FontSize="10" Margin="0,1,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="{Binding Subtitle}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasOffline}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -172,7 +205,7 @@
                         <Rectangle Width="16" Height="1.6" Fill="{DynamicResource OnAccentBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Button>
-                <TextBlock Text="HueControl" VerticalAlignment="Center" Margin="6,0,0,0"
+                <TextBlock Text="Light Control for Hue" VerticalAlignment="Center" Margin="6,0,0,0"
                            Foreground="{DynamicResource OnAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -246,7 +279,7 @@
             </Border.Effect>
             <DockPanel Margin="18">
                 <StackPanel DockPanel.Dock="Top">
-                    <TextBlock Text="HueControl" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="Light Control for Hue" FontSize="19" FontWeight="Bold" TextWrapping="Wrap"/>
                     <TextBlock Text="{loc:Tr App_Subtitle}" Foreground="{DynamicResource TextSecondaryBrush}"
                                FontSize="12" Margin="0,2,0,0"/>
                     <TextBlock Text="{loc:Tr Homes}" Foreground="{DynamicResource TextSecondaryBrush}"

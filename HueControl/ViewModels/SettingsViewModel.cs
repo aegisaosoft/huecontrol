@@ -16,6 +16,7 @@ public sealed class SettingsViewModel : ObservableObject
         BridgeName = bridgeName;
         Sections = new ObservableCollection<object>
         {
+            new MainSectionViewModel(),
             new DevicesSectionViewModel(client, confirm),
             new AccessoriesSectionViewModel(client, confirm),
             new RoomsSectionViewModel(client, confirm),

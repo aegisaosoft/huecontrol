@@ -17,6 +17,7 @@ public sealed class GroupViewModel : ObservableObject
     private bool _suppress;
     private bool _anyOn;
     private double _brightness;
+    private int _offlineCount;
 
     public GroupViewModel(string id, HueGroupDto dto, HueApiClient client, Action<Exception> onError)
     {
@@ -45,7 +46,33 @@ public sealed class GroupViewModel : ObservableObject
     public ICommand TurnOnCommand { get; }
     public ICommand TurnOffCommand { get; }
 
-    public string Subtitle => $"{RoomClass} · {Loc.T("NLights_Fmt", LightCount)}";
+    public string Subtitle => _offlineCount > 0
+        ? $"{RoomClass} · {Loc.T("NLights_Fmt", LightCount)} · {Loc.T("NOffline_Fmt", _offlineCount)}"
+        : $"{RoomClass} · {Loc.T("NLights_Fmt", LightCount)}";
+
+    /// <summary>Number of the room's lights the bridge currently cannot reach.</summary>
+    public int OfflineCount
+    {
+        get => _offlineCount;
+        private set
+        {
+            if (SetProperty(ref _offlineCount, value))
+            {
+                OnPropertyChanged(nameof(HasOffline));
+                OnPropertyChanged(nameof(Subtitle));
+            }
+        }
+    }
+
+    /// <summary>True when at least one light in the room is offline.</summary>
+    public bool HasOffline => _offlineCount > 0;
+
+    /// <summary>Recomputes how many of the room's lights are unreachable, from the live light set.</summary>
+    public void UpdateOfflineCount(IEnumerable<LightViewModel> lights)
+    {
+        var byId = LightIds.ToHashSet();
+        OfflineCount = lights.Count(l => byId.Contains(l.Id) && l.IsOffline);
+    }
 
     public bool AnyOn
     {

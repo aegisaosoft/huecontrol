@@ -7,7 +7,7 @@
         xmlns:loc="clr-namespace:HueControl.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Settings" Height="700" Width="820"
+        Title="{loc:Tr Tip_Settings}" Height="700" Width="820"
         MinHeight="460" MinWidth="640"
         Icon="Assets/app.ico"
         WindowStyle="None"
@@ -122,9 +122,9 @@
                                        FontSize="11" Margin="0,6,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Save" Style="{StaticResource FlatButton}" MinWidth="64"
+                            <Button Content="{loc:Tr Save}" Style="{StaticResource FlatButton}" MinWidth="64"
                                     Command="{Binding RenameCommand}"/>
-                            <Button Content="Delete" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
+                            <Button Content="{loc:Tr Delete}" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
                                     Foreground="{DynamicResource DangerBrush}" Command="{Binding DeleteCommand}"/>
                         </StackPanel>
                     </Grid>
@@ -181,9 +181,9 @@
                                        FontSize="11" Margin="0,6,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Save" Style="{StaticResource FlatButton}" MinWidth="64"
+                            <Button Content="{loc:Tr Save}" Style="{StaticResource FlatButton}" MinWidth="64"
                                     Command="{Binding RenameCommand}"/>
-                            <Button Content="Delete" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
+                            <Button Content="{loc:Tr Delete}" Style="{StaticResource FlatButton}" MinWidth="64" Margin="8,0,0,0"
                                     Foreground="{DynamicResource DangerBrush}" Command="{Binding DeleteCommand}"/>
                         </StackPanel>
                     </Grid>
@@ -207,6 +207,50 @@
                     </Expander>
                 </StackPanel>
             </Border>
+        </DataTemplate>
+
+        <!-- ========== Section: Main ========== -->
+        <DataTemplate DataType="{x:Type vm:MainSectionViewModel}">
+            <DockPanel Margin="20,18,20,0">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Text="{loc:Tr Section_Main}" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="{loc:Tr Main_Subtitle}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,16,0,12">
+                        <!-- Auto-refresh -->
+                        <Border Style="{StaticResource CardBorder}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{loc:Tr AutoRefresh}" FontSize="15" FontWeight="SemiBold"
+                                               VerticalAlignment="Center"/>
+                                    <ToggleButton Style="{StaticResource SwitchToggle}" Margin="14,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{Binding AutoRefreshEnabled, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                           Margin="0,8,0,0" TextWrapping="Wrap"
+                                           Text="{loc:Tr AutoRefresh_Desc}"/>
+                                <StackPanel Margin="0,18,0,0" IsEnabled="{Binding AutoRefreshEnabled}">
+                                    <TextBlock FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"
+                                               Text="{Binding RefreshLabel}"/>
+                                    <Slider Margin="0,10,0,0" Width="320" HorizontalAlignment="Left"
+                                            Minimum="3" Maximum="60" SmallChange="1"
+                                            IsSnapToTickEnabled="True" TickFrequency="1"
+                                            Value="{Binding RefreshSeconds, Mode=TwoWay}"/>
+                                    <Grid Width="320" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                        <TextBlock Text="3s" HorizontalAlignment="Left" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="60s" HorizontalAlignment="Right" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         </DataTemplate>
 
         <!-- ========== Section: Devices ========== -->
